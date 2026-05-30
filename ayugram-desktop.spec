@@ -11,7 +11,7 @@
 
 Name: ayugram-desktop
 Version: 6.7.8
-Release: 1%{?dist}
+Release: 2%{?dist}
 
 # Application and 3rd-party modules licensing:
 # * AyuGram Desktop - GPL-3.0-or-later with OpenSSL exception -- main tarball;
@@ -40,6 +40,8 @@ Source1: create-ayugram-tarball-full.sh
 Patch0: findprotobuf_fix.patch
 # Fix compilation with gcc16
 Patch1: gcc16.patch
+# Fix saving hide premium statuses to config file
+Patch2: fix-hide-premium-statuses.patch
 # AyuGram Desktop require more than 8 GB of RAM on linking stage.
 # Disabling all low-memory architectures.
 ExclusiveArch: x86_64 aarch64
@@ -229,6 +231,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/com.ayugram.desktop.d
 %{_metainfodir}/com.ayugram.desktop.metainfo.xml
 
 %changelog
+* Wed May 06 2026 Ivan Romanov <drizt72@zoho.eu> - 6.7.8-2
+- Add patch fix-hide-premium-statuses.patch
+
 * Mon Apr 27 2026 Ivan Romanov <drizt72@zoho.eu> - 6.7.8-1
 - Bump to 6.7.8
 
