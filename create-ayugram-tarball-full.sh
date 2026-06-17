@@ -1,24 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <ayugram-version>"
-    exit 1
-fi
-
 SCRIPT_PWD="$(pwd)"
 
-VERSION="$1"
 REPO="https://github.com/AyuGram/AyuGramDesktop.git"
 
-TOPDIR="AyuGramDesktop-${VERSION}-full"
+TOPDIR="AyuGramDesktop-full"
 TARBALL="${TOPDIR}.tar.gz"
 
 TMPDIR="$(mktemp -d)"
 trap 'rm -rf "$TMPDIR"' EXIT
 
-echo "Cloning AyuGramDesktop v${VERSION} with submodules..."
-git clone --recursive --branch "v${VERSION}" --depth 1 "$REPO" "$TMPDIR/$TOPDIR"
+echo "Cloning AyuGramDesktop with submodules..."
+git clone --recursive "$REPO" "$TMPDIR/$TOPDIR"
 
 cd "$TMPDIR/$TOPDIR"
 
@@ -45,6 +39,11 @@ echo "# $url"
 echo "Provides: bundled(${name}) = ${ver}"
 ' >> "$PROVIDES_FILE"
 
+echo "Generating version..."
+if GIT_VERSION=$(git describe --tags --long 2>/dev/null); then
+    VERSION=$(echo "$GIT_VERSION" | sed -E 's/^v//; s/-([0-9]+)-g([0-9a-f]+)$/.git.\1.\2/')
+fi
+
 echo "Removing all .git directories..."
 find . -name .git -prune -exec rm -rf {} +
 
@@ -57,6 +56,12 @@ tar --sort=name \
     -czf "$TARBALL" "$TOPDIR"
 
 mv "$TARBALL" "$SCRIPT_PWD/"
+
+SPEC_FILE="${SCRIPT_PWD}/ayugram-desktop-git.spec"
+if [ -f "$SPEC_FILE" ]; then
+    sed -i "s/^Version:.*/Version: ${VERSION}/" "$SPEC_FILE"
+    sed -i "s/^Source0:.*/Source0: ${TARBALL}/" "$SPEC_FILE"
+fi
 
 echo "Done:"
 echo "$(readlink -f "$SCRIPT_PWD/$TARBALL")"

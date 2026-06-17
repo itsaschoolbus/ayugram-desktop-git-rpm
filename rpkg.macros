@@ -1,0 +1,2 @@
+[macros]
+git_dir_pack=rpkg_git_dir_pack --recursive

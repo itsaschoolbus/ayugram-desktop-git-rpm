@@ -9,9 +9,9 @@
 # Reducing debuginfo verbosity to avoid possible building crash on low-memory devices
 %global optflags %(echo %{optflags} | sed 's/-g /-g1 /')
 
-Name: ayugram-desktop
-Version: 6.7.8
-Release: 2%{?dist}
+Name: ayugram-desktop-git
+Version: 1.0.0
+Release: 1%{?dist}
 
 # Application and 3rd-party modules licensing:
 # * AyuGram Desktop - GPL-3.0-or-later with OpenSSL exception -- main tarball;
@@ -33,7 +33,7 @@ Summary: Desktop Telegram client with good customization and Ghost mode
 # git clone --recursive --branch "v${VERSION}" ...
 
 # create-ayugram-tarball-full.sh 6.3.10.
-Source0: AyuGramDesktop-%{version}-full.tar.gz
+Source0: AyuGramDesktop-full.tar.gz
 Source1: create-ayugram-tarball-full.sh
 
 # Fix searching protobuf cmake module
@@ -120,6 +120,10 @@ Requires: hicolor-icon-theme
 Requires: qt6-qtimageformats%{?_isa}
 Requires: webkitgtk6.0%{?_isa}
 
+# Replace the non-git package...
+Conflicts: ayugram-desktop
+Provides: ayugram-desktop = %{version}-%{release}
+
 # Short alias for the main package...
 Provides: ayugram = %{?epoch:%{epoch}:}%{version}-%{release}
 Provides: ayugram%{?_isa} = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -191,7 +195,7 @@ client at your own risk.
 
 %prep
 # Unpacking AyuGram Desktop source archive...
-%autosetup -n %{appname}-%{version}-full -p1
+%autosetup -n AyuGramDesktop-full -p1
 
 # Unbundling libraries... except minizip
 rm -rf Telegram/ThirdParty/{GSL,QR,dispatch,expected,fcitx5-qt,hime,hunspell,kimageformats,lz4,nimf,range-v3,xxHash}
@@ -231,6 +235,9 @@ desktop-file-validate %{buildroot}%{_datadir}/applications/com.ayugram.desktop.d
 %{_metainfodir}/com.ayugram.desktop.metainfo.xml
 
 %changelog
+* Wed Jun 17 2026 itsaschoolbus <itsaschoolbus@proton.me>
+- Git package
+
 * Wed May 06 2026 Ivan Romanov <drizt72@zoho.eu> - 6.7.8-2
 - Add patch fix-hide-premium-statuses.patch
 
