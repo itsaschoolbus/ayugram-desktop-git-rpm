@@ -1,0 +1,51 @@
+name: commit tracker
+on:
+  schedule:
+    - cron: '0 */4 * * *'
+  workflow_dispatch:
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: fetch latest commit
+        id: fetch
+        run: |
+          LATEST_SHA=$(git ls-remote https://github.com/AyuGram/AyuGramDesktop.git HEAD | awk '{print $1}')
+          echo "latest_sha=$LATEST_SHA" >> $GITHUB_OUTPUT
+
+      - name: compare hash
+        id: check
+        run: |
+          STORED_SHA=""
+          if [ -f upstream-commit ]; then
+              STORED_SHA=$(cat upstream-commit)
+          fi
+
+          if [ "$STORED_SHA" != "${{ steps.fetch.outputs.latest_sha }}" ]; then
+              echo "changed=true" >> $GITHUB_OUTPUT
+          else
+              echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: update
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          # save hash
+          echo "${{ steps.fetch.outputs.latest_sha }}" > upstream-commit
+
+          # push
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add upstream-commit
+          git commit -m "upstream updated to ${{ steps.fetch.outputs.latest_sha }}"
+          git push
+
+          # start new build
+          curl -X POST "${{ secrets.COPR_WEBHOOK }}"
