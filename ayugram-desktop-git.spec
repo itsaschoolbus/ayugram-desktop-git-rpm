@@ -106,6 +106,8 @@ BuildRequires: libstdc++-devel
 BuildRequires: minizip-compat-devel
 BuildRequires: ninja-build
 BuildRequires: python3
+BuildRequires: rust
+BuildRequires: cargo
 BuildRequires: pkgconfig(openh264)
 BuildRequires: cmake(KF6CoreAddons)
 BuildRequires: cmake(tde2e)
@@ -195,6 +197,12 @@ client at your own risk.
 rm -rf Telegram/ThirdParty/{GSL,QR,dispatch,expected,fcitx5-qt,hime,hunspell,kimageformats,lz4,nimf,range-v3,xxHash}
 
 %build
+pushd tlottie-src
+export CARGO_HOME="$PWD/.cargo-home"
+cargo rustc --lib --release --locked --features c-api --crate-type staticlib
+popd
+TLOTTIE_DIR="%{_builddir}/AyuGramDesktop-full/tlottie-src"
+
 # Building AyuGram Desktop using cmake...
 %cmake -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
@@ -208,7 +216,9 @@ rm -rf Telegram/ThirdParty/{GSL,QR,dispatch,expected,fcitx5-qt,hime,hunspell,kim
     -DDESKTOP_APP_DISABLE_WAYLAND_INTEGRATION:BOOL=OFF \
     -DDESKTOP_APP_DISABLE_X11_INTEGRATION:BOOL=OFF \
     -DDESKTOP_APP_DISABLE_CRASH_REPORTS:BOOL=ON \
-    -DDESKTOP_APP_DISABLE_QT_PLUGINS:BOOL=ON
+    -DDESKTOP_APP_DISABLE_QT_PLUGINS:BOOL=ON \
+    -DDESKTOP_APP_TLOTTIE_LIBRARY="$TLOTTIE_DIR/target/release/libtlottie.a" \
+    -DDESKTOP_APP_TLOTTIE_INCLUDE_DIR="$TLOTTIE_DIR/include"
 %cmake_build
 
 %install
