@@ -36,12 +36,6 @@ Summary: Desktop Telegram client with good customization and Ghost mode
 Source0: AyuGramDesktop-full.tar.gz
 Source1: create-ayugram-tarball-full.sh
 
-# Fix searching protobuf cmake module
-Patch0: findprotobuf_fix.patch
-# Fix compilation with gcc16
-Patch1: gcc16.patch
-# Fix saving hide premium statuses to config file
-Patch2: fix-hide-premium-statuses.patch
 # AyuGram Desktop require more than 8 GB of RAM on linking stage.
 # Disabling all low-memory architectures.
 ExclusiveArch: x86_64 aarch64
