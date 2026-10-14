@@ -204,6 +204,11 @@ popd
 TLOTTIE_DIR="%{_builddir}/AyuGramDesktop-full/tlottie-src"
 
 # Building AyuGram Desktop using cmake...
+%ifarch x86_64
+CFLAGS="$(echo '%{?build_cflags}' | sed -E -e 's/-march=[^ ]+/-march=x86-64-v2/' -e 's/-ffat-lto-objects *//g' -e 's/(^| )-g( |$)/ /g' -e 's/-mno-omit-leaf-frame-pointer *//g' -e 's/-fno-omit-frame-pointer *//g' -e 's/  +/ /g' -e 's/ +$//' -e 's/^ +//') -fno-plt -fno-semantic-interposition -ffunction-sections -fdata-sections" \
+CXXFLAGS="$(echo '%{?build_cxxflags}' | sed -E -e 's/-march=[^ ]+/-march=x86-64-v2/' -e 's/-ffat-lto-objects *//g' -e 's/(^| )-g( |$)/ /g' -e 's/-mno-omit-leaf-frame-pointer *//g' -e 's/-fno-omit-frame-pointer *//g' -e 's/  +/ /g' -e 's/ +$//' -e 's/^ +//') -fno-plt -fno-semantic-interposition -ffunction-sections -fdata-sections" \
+LDFLAGS="$(echo '%{?build_ldflags}' | sed -E -e 's/-ffat-lto-objects *//g' -e 's/  +/ /g' -e 's/ +$//' -e 's/^ +//') -Wl,--gc-sections" \
+%endif
 %cmake -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_AR=%{_bindir}/gcc-ar \
